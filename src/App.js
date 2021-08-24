@@ -33,7 +33,7 @@ const App = () => {
   const classes = useStyles();
 
   const [notes, setNotes] = useState([]);
-  const [defaultFlag, setDefaultFlag] = useState(false);
+  const [flag, setFlag] = useState(false);
 
   const handleAddNote = (title, description) => {
     const newNote = {
@@ -47,13 +47,13 @@ const App = () => {
 
     localStorage.setItem("notes", JSON.stringify(newNotesData));
 
-    setDefaultFlag(!defaultFlag);
+    setFlag(!flag);
   };
 
   useEffect(() => {
     const notesData = JSON.parse(localStorage.getItem("notes"));
     setNotes(notesData ? notesData : []);
-  }, [defaultFlag]);
+  }, [flag]);
 
   const handleEditNote = (id, modifiedTitle, modifiedDescription) => {
     const newNotesData = notes.map((note) => {
@@ -70,7 +70,7 @@ const App = () => {
 
     localStorage.setItem("notes", JSON.stringify(newNotesData));
 
-    setDefaultFlag(!defaultFlag);
+    setFlag(!flag);
   };
 
   const handleDeleteNote = (id) => {
@@ -78,17 +78,28 @@ const App = () => {
 
     localStorage.setItem("notes", JSON.stringify(newNotesData));
 
-    setDefaultFlag(!defaultFlag);
+    setFlag(!flag);
   };
 
   const handleSearch = (searchKeyword) => {
-    console.log(searchKeyword);
+
+    const allNotesData = JSON.parse(localStorage.getItem("notes"));
+
+    const searchResultsData = allNotesData.filter((note) =>
+      note.title.toLowerCase().includes(searchKeyword.toLowerCase())
+    );
+
+    localStorage.setItem("searchResults", JSON.stringify(searchResultsData));
+
+    const searchedNotesData = JSON.parse(localStorage.getItem("searchResults"));
+
+    setNotes(searchedNotesData ? searchedNotesData : allNotesData);
   };
 
   return (
     <>
       <Container maxWidth="md" className={classes.noteCardContainer}>
-        {notes.length > 0 && <SearchField onSearch={handleSearch} />}
+        <SearchField onSearch={handleSearch} />
         <Masonry
           breakpointCols={breakpointColumnsObj}
           className="my-masonry-grid"
