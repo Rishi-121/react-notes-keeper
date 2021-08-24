@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Typography, Container } from "@material-ui/core";
 import NoteCard from "./components/NoteCard";
 import FormDialog from "./components/FormDialog";
+import SearchField from "./components/SearchField";
 import { v4 as uuidv4 } from "uuid";
 import randomColor from "randomcolor";
 import Masonry from "react-masonry-css";
@@ -32,7 +33,7 @@ const App = () => {
   const classes = useStyles();
 
   const [notes, setNotes] = useState([]);
-  const [flag, setFlag] = useState(false);
+  const [defaultFlag, setDefaultFlag] = useState(false);
 
   const handleAddNote = (title, description) => {
     const newNote = {
@@ -43,30 +44,51 @@ const App = () => {
     };
 
     const newNotesData = notes.concat(newNote);
-    setNotes(newNotesData);
 
     localStorage.setItem("notes", JSON.stringify(newNotesData));
 
-    setFlag(!flag);
+    setDefaultFlag(!defaultFlag);
   };
 
   useEffect(() => {
     const notesData = JSON.parse(localStorage.getItem("notes"));
     setNotes(notesData ? notesData : []);
-  }, [flag]);
+  }, [defaultFlag]);
 
-  const handleEditNote = (id, title, description) => {};
+  const handleEditNote = (id, modifiedTitle, modifiedDescription) => {
+    const newNotesData = notes.map((note) => {
+      if (note.id === id) {
+        return {
+          ...note,
+          title: modifiedTitle,
+          description: modifiedDescription,
+        };
+      } else {
+        return note;
+      }
+    });
+
+    localStorage.setItem("notes", JSON.stringify(newNotesData));
+
+    setDefaultFlag(!defaultFlag);
+  };
 
   const handleDeleteNote = (id) => {
     const newNotesData = notes.filter((note) => note.id !== id);
-    setNotes(newNotesData);
+
     localStorage.setItem("notes", JSON.stringify(newNotesData));
-    setFlag(!flag);
+
+    setDefaultFlag(!defaultFlag);
+  };
+
+  const handleSearch = (searchKeyword) => {
+    console.log(searchKeyword);
   };
 
   return (
     <>
       <Container maxWidth="md" className={classes.noteCardContainer}>
+        {notes.length > 0 && <SearchField onSearch={handleSearch} />}
         <Masonry
           breakpointCols={breakpointColumnsObj}
           className="my-masonry-grid"

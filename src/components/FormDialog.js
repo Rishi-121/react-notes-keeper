@@ -66,6 +66,7 @@ const FormDialog = ({ onSubmit }) => {
             label="Title"
             value={note.title}
             onChange={(e) => setNote({ ...note, title: e.target.value })}
+            required
           />
           <TextField
             variant="outlined"
@@ -76,6 +77,7 @@ const FormDialog = ({ onSubmit }) => {
             label="Description"
             value={note.description}
             onChange={(e) => setNote({ ...note, description: e.target.value })}
+            required
           />
         </DialogContent>
 
