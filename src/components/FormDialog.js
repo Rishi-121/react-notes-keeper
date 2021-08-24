@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
+  Fab,
   Button,
   TextField,
   Dialog,
@@ -8,9 +9,14 @@ import {
   Grid,
   DialogActions,
 } from "@material-ui/core";
-import { v4 as uuidv4 } from "uuid";
+import { Add } from "@material-ui/icons";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
+  addButton: {
+    position: "fixed",
+    bottom: theme.spacing(2),
+    right: theme.spacing(3),
+  },
   textField: {
     margin: "1rem 0",
   },
@@ -19,42 +25,47 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const AddNoteForm = ({ open, handleClose, noteTitle, noteDescription }) => {
+const FormDialog = ({ onSubmit }) => {
   const classes = useStyles();
+  const [open, setOpen] = useState(false);
+  const [note, setNote] = useState({ title: "", description: "" });
 
-  const [title, setTitle] = useState(noteTitle || "");
-  const [description, setDescription] = useState(noteDescription || "");
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
 
-  const notes = JSON.parse(localStorage.getItem("notes")) || [];
+  const handleClose = () => {
+    setOpen(false);
+  };
 
-  const handleClick = () => {
-    const note = {
-      id: uuidv4(),
-      title,
-      description,
-    };
-
-    notes.push(note);
-
-    localStorage.setItem("notes", JSON.stringify(notes));
-
-    setTitle("");
-    setDescription("");
-
-    handleClose();
+  const handleSubmit = () => {
+    onSubmit(note.title, note.description);
+    setNote({
+      title: "",
+      description: "",
+    });
+    setOpen(false);
   };
 
   return (
     <>
-      <Dialog open={open} onClose={handleClose}>
+      <Fab
+        color="secondary"
+        className={classes.addButton}
+        onClick={handleClickOpen}
+      >
+        <Add />
+      </Fab>
+      <Dialog maxWidth="sm" fullWidth={true} open={open} onClose={handleClose}>
         <DialogContent>
           <TextField
             variant="outlined"
+            autoFocus
             fullWidth
             className={classes.textField}
             label="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={note.title}
+            onChange={(e) => setNote({ ...note, title: e.target.value })}
           />
           <TextField
             variant="outlined"
@@ -63,8 +74,8 @@ const AddNoteForm = ({ open, handleClose, noteTitle, noteDescription }) => {
             multiline
             rows={4}
             label="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={note.description}
+            onChange={(e) => setNote({ ...note, description: e.target.value })}
           />
         </DialogContent>
 
@@ -76,7 +87,7 @@ const AddNoteForm = ({ open, handleClose, noteTitle, noteDescription }) => {
                 color="secondary"
                 onClose={handleClose}
                 size="large"
-                onClick={handleClick}
+                onClick={handleSubmit}
               >
                 Save Note
               </Button>
@@ -88,4 +99,4 @@ const AddNoteForm = ({ open, handleClose, noteTitle, noteDescription }) => {
   );
 };
 
-export default AddNoteForm;
+export default FormDialog;

@@ -1,14 +1,15 @@
 import React from "react";
-// import { makeStyles } from "@material-ui/core/styles";
-import { Card, CardContent, Typography } from "@material-ui/core";
+import {
+  Card,
+  CardContent,
+  Typography,
+  // CardActions,
+  // Button,
+} from "@material-ui/core";
 
-// const useStyles = makeStyles(() => ({}));
-
-const NoteCard = ({ title, description }) => {
-  // const classes = useStyles();
-
+const NoteCard = ({ id, title, description, bgColor, onEdit, onDelete }) => {
   return (
-    <Card>
+    <Card style={{ backgroundColor: bgColor }}>
       <CardContent>
         <Typography variant="h5" component="h2">
           {title}
@@ -17,6 +18,24 @@ const NoteCard = ({ title, description }) => {
           {description}
         </Typography>
       </CardContent>
+      {/* <CardActions>
+        <Button
+          size="small"
+          variant="contained"
+          style={{ backgroundColor: "#FFFFFF" }}
+          onClick={() => onEdit(id, title, description)}
+        >
+          Edit
+        </Button>
+        <Button
+          size="small"
+          variant="contained"
+          color="secondary"
+          onClick={() => onDelete(id)}
+        >
+          Delete
+        </Button>
+      </CardActions> */}
     </Card>
   );
 };

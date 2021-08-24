@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Typography, Fab, Container, Grid } from "@material-ui/core";
-import { Add } from "@material-ui/icons";
-import AddNoteForm from "./components/AddNoteForm";
+import { Typography, Container } from "@material-ui/core";
 import NoteCard from "./components/NoteCard";
+import FormDialog from "./components/FormDialog";
+import { v4 as uuidv4 } from "uuid";
+import randomColor from "randomcolor";
+import Masonry from "react-masonry-css";
 
 const useStyles = makeStyles((theme) => ({
   text: {
@@ -15,64 +17,83 @@ const useStyles = makeStyles((theme) => ({
       fontSize: "1rem",
     },
   },
-  addButton: {
-    position: "absolute",
-    bottom: theme.spacing(2),
-    right: theme.spacing(3),
+  noteCardContainer: {
+    padding: theme.spacing(6, 0, 8),
   },
-  noteCardContainer: {},
 }));
+
+const breakpointColumnsObj = {
+  default: 3,
+  1100: 2,
+  700: 1,
+};
 
 const App = () => {
   const classes = useStyles();
-  const [open, setOpen] = useState(false);
+
   const [notes, setNotes] = useState([]);
+  const [flag, setFlag] = useState(false);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+  const handleAddNote = (title, description) => {
+    const newNote = {
+      id: uuidv4(),
+      title,
+      description,
+      bgColor: randomColor({ luminosity: "light", alpha: 0.5 }),
+    };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+    const newNotesData = notes.concat(newNote);
+    setNotes(newNotesData);
 
-  const setNotesData = () => {
-    const notesData = JSON.parse(localStorage.getItem("notes"));
+    localStorage.setItem("notes", JSON.stringify(newNotesData));
 
-    if (notesData) {
-      setNotes(notesData);
-    }
+    setFlag(!flag);
   };
 
   useEffect(() => {
-    setNotesData();
-  }, []);
+    const notesData = JSON.parse(localStorage.getItem("notes"));
+    setNotes(notesData ? notesData : []);
+  }, [flag]);
+
+  const handleEditNote = (id, title, description) => {};
+
+  const handleDeleteNote = (id) => {
+    const newNotesData = notes.filter((note) => note.id !== id);
+    setNotes(newNotesData);
+    localStorage.setItem("notes", JSON.stringify(newNotesData));
+    setFlag(!flag);
+  };
 
   return (
     <>
-      <Fab
-        color="secondary"
-        className={classes.addButton}
-        onClick={handleClickOpen}
-      >
-        <Add />
-      </Fab>
-      <AddNoteForm open={open} handleClose={handleClose} />
-      {notes.length <= 0 ? (
-        <Typography variant="h4" color="textSecondary" className={classes.text}>
-          No Notes Available
-        </Typography>
-      ) : (
-        <Container maxWidth="md">
-          <Grid container spacing={4}>
-            {notes.map(({ title, description }, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
-                <NoteCard title={title} description={description} />
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      )}
+      <Container maxWidth="md" className={classes.noteCardContainer}>
+        <Masonry
+          breakpointCols={breakpointColumnsObj}
+          className="my-masonry-grid"
+          columnClassName="my-masonry-grid_column"
+        >
+          {notes.length === 0 ? (
+            <Typography
+              variant="h4"
+              color="textSecondary"
+              className={classes.text}
+            >
+              No Notes Available
+            </Typography>
+          ) : (
+            notes.map((notes, index) => (
+              <div key={index}>
+                <NoteCard
+                  {...notes}
+                  onDelete={handleDeleteNote}
+                  onEdit={handleEditNote}
+                />
+              </div>
+            ))
+          )}
+        </Masonry>
+        <FormDialog onSubmit={handleAddNote} />
+      </Container>
     </>
   );
 };
