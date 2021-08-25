@@ -60,8 +60,10 @@ const App = () => {
       if (note.id === id) {
         return {
           ...note,
-          title: modifiedTitle,
-          description: modifiedDescription,
+          title: !modifiedTitle.trim() ? note.title : modifiedTitle,
+          description: !modifiedDescription.trim()
+            ? note.description
+            : modifiedDescription,
         };
       } else {
         return note;
@@ -82,7 +84,6 @@ const App = () => {
   };
 
   const handleSearch = (searchKeyword) => {
-
     const allNotesData = JSON.parse(localStorage.getItem("notes"));
 
     const searchResultsData = allNotesData.filter((note) =>
